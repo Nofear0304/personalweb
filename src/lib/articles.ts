@@ -1,50 +1,26 @@
-import fs from "fs";
-import path from "path";
-import matter from "gray-matter";
 import { remark } from "remark";
 import remarkHtml from "remark-html";
-import { getLikes } from "@/lib/likes";
+import {
+  articles as generatedArticles,
+  articleHtmlContents,
+} from "@/data/generated";
+import { storeGetLikes } from "@/lib/store";
 import type { Article, ArticleMeta } from "@/types";
 
-const ARTICLES_DIR = path.join(process.cwd(), "content/articles");
-
 export function estimateReadingTime(text: string): number {
-  const wordsPerMinute = 300; // Chinese chars per minute
+  const wordsPerMinute = 300;
   const chars = text.replace(/\s/g, "").length;
   return Math.max(1, Math.ceil(chars / wordsPerMinute));
 }
 
 export function getAllArticles(): ArticleMeta[] {
-  if (!fs.existsSync(ARTICLES_DIR)) return [];
-
-  const filenames = fs.readdirSync(ARTICLES_DIR);
-
-  const articles = filenames
-    .filter((filename) => filename.endsWith(".md"))
-    .map((filename) => {
-      const filePath = path.join(ARTICLES_DIR, filename);
-      const fileContent = fs.readFileSync(filePath, "utf-8");
-      const { data, content } = matter(fileContent);
-
-      const slug = filename.replace(/\.md$/, "");
-      const frontmatterLikes = data.likes ?? 0;
-      const dynamicLikes = getLikes("article", slug);
-
-      return {
-        slug,
-        title: data.title || "Untitled",
-        date: data.date || new Date().toISOString().split("T")[0],
-        description: data.description || "",
-        coverImage: data.coverImage || undefined,
-        tags: data.tags || [],
-        readingTime: estimateReadingTime(content),
-        category: data.category || undefined,
-        likes: frontmatterLikes + dynamicLikes,
-      } as ArticleMeta;
-    })
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-  return articles;
+  return generatedArticles.map((a) => {
+    const dynamicLikes = storeGetLikes("article", a.slug);
+    return {
+      ...a,
+      likes: (a.likes ?? 0) + dynamicLikes,
+    };
+  });
 }
 
 export function getAllTags(): string[] {
@@ -59,29 +35,37 @@ export function getArticlesByTag(tag: string): ArticleMeta[] {
 }
 
 export async function getArticleBySlug(slug: string): Promise<Article | null> {
-  const filePath = path.join(ARTICLES_DIR, `${slug}.md`);
-  if (!fs.existsSync(filePath)) return null;
+  const meta = generatedArticles.find((a) => a.slug === slug);
+  if (!meta) return null;
 
-  const fileContent = fs.readFileSync(filePath, "utf-8");
-  const { data, content } = matter(fileContent);
+  // Use pre-generated HTML content if available
+  let htmlContent: string;
+  if (articleHtmlContents[slug]) {
+    htmlContent = articleHtmlContents[slug];
+  } else {
+    // Fallback: convert raw markdown (for content added at runtime)
+    // This path is used for admin-uploaded content
+    const { articleRawContents } = await import("@/data/generated");
+    const rawMd = articleRawContents[slug];
+    if (!rawMd) return null;
+    const processed = await remark().use(remarkHtml).process(rawMd);
+    htmlContent = processed.toString();
+  }
 
-  const processedContent = await remark().use(remarkHtml).process(content);
-  const htmlContent = processedContent.toString();
-
-  const frontmatterLikes = data.likes ?? 0;
-  const dynamicLikes = getLikes("article", slug);
+  const dynamicLikes = storeGetLikes("article", slug);
+  const articleMeta = generatedArticles.find((a) => a.slug === slug)!;
 
   return {
     slug,
-    title: data.title || "Untitled",
-    date: data.date || new Date().toISOString().split("T")[0],
-    description: data.description || "",
-    coverImage: data.coverImage || undefined,
-    tags: data.tags || [],
+    title: articleMeta.title,
+    date: articleMeta.date,
+    description: articleMeta.description,
+    coverImage: articleMeta.coverImage,
+    tags: articleMeta.tags,
     content: htmlContent,
-    readingTime: estimateReadingTime(content),
-    category: data.category || undefined,
-    likes: frontmatterLikes + dynamicLikes,
+    readingTime: articleMeta.readingTime,
+    category: articleMeta.category,
+    likes: (articleMeta.likes ?? 0) + dynamicLikes,
   };
 }
 
@@ -97,45 +81,26 @@ export function getAdjacentArticles(slug: string): {
   };
 }
 
+// Note: createArticle and deleteArticle are admin-only functions
+// that require filesystem access. On Cloudflare Workers, these won't work.
+// For a serverless deployment, content management should use a database or
+// file storage service like Cloudflare R2.
+// These functions are kept for VPS-based deployments.
 export function createArticle(
-  filename: string,
-  content: string
+  _filename: string,
+  _content: string
 ): { success: boolean; slug?: string; error?: string } {
-  try {
-    if (!filename.endsWith(".md")) filename = `${filename}.md`;
-    const safeFilename = filename.replace(/[^a-zA-Z0-9一-鿿\-_\.]/g, "-");
-
-    try {
-      matter(content);
-    } catch {
-      return { success: false, error: "Invalid markdown content" };
-    }
-
-    if (!fs.existsSync(ARTICLES_DIR)) {
-      fs.mkdirSync(ARTICLES_DIR, { recursive: true });
-    }
-
-    fs.writeFileSync(path.join(ARTICLES_DIR, safeFilename), content, "utf-8");
-    return { success: true, slug: safeFilename.replace(/\.md$/, "") };
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Failed to create article",
-    };
-  }
+  return {
+    success: false,
+    error: "Content creation is not supported in serverless mode. Please add .md files to content/articles/ and redeploy.",
+  };
 }
 
-export function deleteArticle(slug: string): { success: boolean; error?: string } {
-  try {
-    const safeSlug = slug.replace(/[^a-zA-Z0-9一-鿿\-_]/g, "");
-    const filePath = path.join(ARTICLES_DIR, `${safeSlug}.md`);
-    if (!fs.existsSync(filePath)) return { success: false, error: "Article not found" };
-    fs.unlinkSync(filePath);
-    return { success: true };
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Failed to delete article",
-    };
-  }
+export function deleteArticle(
+  _slug: string
+): { success: boolean; error?: string } {
+  return {
+    success: false,
+    error: "Content deletion is not supported in serverless mode. Please remove the .md file from content/articles/ and redeploy.",
+  };
 }

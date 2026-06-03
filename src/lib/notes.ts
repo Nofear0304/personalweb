@@ -1,12 +1,11 @@
-import fs from "fs";
-import path from "path";
-import matter from "gray-matter";
+import {
+  notes as generatedNotes,
+  noteHtmlContents,
+} from "@/data/generated";
 import { remark } from "remark";
 import remarkHtml from "remark-html";
-import { getLikes } from "@/lib/likes";
+import { storeGetLikes } from "@/lib/store";
 import type { Note, NoteMeta } from "@/types";
-
-const NOTES_DIR = path.join(process.cwd(), "content/notes");
 
 function estimateReadingTime(text: string): number {
   const wordsPerMinute = 300;
@@ -15,34 +14,13 @@ function estimateReadingTime(text: string): number {
 }
 
 export function getAllNotes(): NoteMeta[] {
-  if (!fs.existsSync(NOTES_DIR)) return [];
-
-  const filenames = fs.readdirSync(NOTES_DIR);
-
-  const notes = filenames
-    .filter((f) => f.endsWith(".md"))
-    .map((filename) => {
-      const filePath = path.join(NOTES_DIR, filename);
-      const fileContent = fs.readFileSync(filePath, "utf-8");
-      const { data, content } = matter(fileContent);
-
-      const slug = filename.replace(/\.md$/, "");
-      const frontmatterLikes = data.likes ?? 0;
-      const dynamicLikes = getLikes("note", slug);
-
-      return {
-        slug,
-        title: data.title || "Untitled",
-        date: data.date || new Date().toISOString().split("T")[0],
-        description: data.description || "",
-        tags: data.tags || [],
-        readingTime: estimateReadingTime(content),
-        likes: frontmatterLikes + dynamicLikes,
-      } as NoteMeta;
-    })
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-  return notes;
+  return generatedNotes.map((n) => {
+    const dynamicLikes = storeGetLikes("note", n.slug);
+    return {
+      ...n,
+      likes: (n.likes ?? 0) + dynamicLikes,
+    };
+  });
 }
 
 export function getAllNoteTags(): string[] {
@@ -57,26 +35,31 @@ export function getNotesByTag(tag: string): NoteMeta[] {
 }
 
 export async function getNoteBySlug(slug: string): Promise<Note | null> {
-  const filePath = path.join(NOTES_DIR, `${slug}.md`);
-  if (!fs.existsSync(filePath)) return null;
+  const meta = generatedNotes.find((n) => n.slug === slug);
+  if (!meta) return null;
 
-  const fileContent = fs.readFileSync(filePath, "utf-8");
-  const { data, content } = matter(fileContent);
+  // Use pre-generated HTML content if available
+  let htmlContent: string;
+  if (noteHtmlContents[slug]) {
+    htmlContent = noteHtmlContents[slug];
+  } else {
+    const { noteRawContents } = await import("@/data/generated");
+    const rawMd = noteRawContents[slug];
+    if (!rawMd) return null;
+    const processed = await remark().use(remarkHtml).process(rawMd);
+    htmlContent = processed.toString();
+  }
 
-  const processed = await remark().use(remarkHtml).process(content);
-  const htmlContent = processed.toString();
-
-  const frontmatterLikes = data.likes ?? 0;
-  const dynamicLikes = getLikes("note", slug);
+  const dynamicLikes = storeGetLikes("note", slug);
 
   return {
     slug,
-    title: data.title || "Untitled",
-    date: data.date || new Date().toISOString().split("T")[0],
-    description: data.description || "",
-    tags: data.tags || [],
-    readingTime: estimateReadingTime(content),
-    likes: frontmatterLikes + dynamicLikes,
+    title: meta.title,
+    date: meta.date,
+    description: meta.description,
+    tags: meta.tags,
+    readingTime: meta.readingTime,
+    likes: (meta.likes ?? 0) + dynamicLikes,
     content: htmlContent,
   };
 }
