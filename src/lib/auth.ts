@@ -16,20 +16,22 @@ function getSessionSecret(): string {
   return secret;
 }
 
-const SESSION_OPTIONS = {
-  password: getSessionSecret(),
-  cookieName: "admin_session",
-  cookieOptions: {
-    secure: process.env.NODE_ENV === "production",
-    httpOnly: true,
-    sameSite: "lax" as const,
-    maxAge: 60 * 60 * 24 * 7, // 7 days
-  },
-};
+function getSessionOptions() {
+  return {
+    password: getSessionSecret(),
+    cookieName: "admin_session",
+    cookieOptions: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      sameSite: "lax" as const,
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+    },
+  };
+}
 
 export async function getSession() {
   const cookieStore = await cookies();
-  const session = await getIronSession<SessionData>(cookieStore, SESSION_OPTIONS);
+  const session = await getIronSession<SessionData>(cookieStore, getSessionOptions());
   return session;
 }
 
