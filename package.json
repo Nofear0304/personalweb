@@ -9,9 +9,29 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@tsparticles/engine": "^4.1.2",
+    "@tsparticles/react": "^4.1.2",
+    "@tsparticles/slim": "^4.1.2",
+    "@types/react-syntax-highlighter": "^15.5.13",
+    "framer-motion": "^12.40.0",
+    "gray-matter": "^4.0.3",
+    "iron-session": "^8.0.4",
     "next": "16.2.6",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-countup": "^6.5.3",
+    "react-dom": "19.2.4",
+    "react-dropzone": "^15.0.0",
+    "react-markdown": "^10.1.0",
+    "react-masonry-css": "^1.0.16",
+    "react-syntax-highlighter": "^16.1.1",
+    "react-type-animation": "^3.2.0",
+    "reading-time": "^1.5.0",
+    "rehype-highlight": "^7.0.2",
+    "rehype-katex": "^7.0.1",
+    "remark": "^15.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-html": "^16.0.1",
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
