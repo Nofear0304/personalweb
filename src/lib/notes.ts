@@ -2,8 +2,6 @@ import {
   notes as generatedNotes,
   noteHtmlContents,
 } from "@/data/generated";
-import { remark } from "remark";
-import remarkHtml from "remark-html";
 import { storeGetLikes } from "@/lib/store";
 import type { Note, NoteMeta } from "@/types";
 
@@ -43,7 +41,12 @@ export async function getNoteBySlug(slug: string): Promise<Note | null> {
   if (noteHtmlContents[slug]) {
     htmlContent = noteHtmlContents[slug];
   } else {
-    const { noteRawContents } = await import("@/data/generated");
+    // Dynamic import to avoid loading ESM packages on Cloudflare Workers
+    const [{ remark }, { default: remarkHtml }, { noteRawContents }] = await Promise.all([
+      import("remark"),
+      import("remark-html"),
+      import("@/data/generated"),
+    ]);
     const rawMd = noteRawContents[slug];
     if (!rawMd) return null;
     const processed = await remark().use(remarkHtml).process(rawMd);

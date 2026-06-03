@@ -1,5 +1,3 @@
-import { remark } from "remark";
-import remarkHtml from "remark-html";
 import {
   gardenNotes as generatedGardenNotes,
   gardenNoteHtmlContents,
@@ -25,7 +23,12 @@ export async function getGardenNoteBySlug(
   if (gardenNoteHtmlContents[slug]) {
     htmlContent = gardenNoteHtmlContents[slug];
   } else {
-    const { gardenNoteRawContents } = await import("@/data/generated");
+    // Dynamic import to avoid loading ESM packages on Cloudflare Workers
+    const [{ remark }, { default: remarkHtml }, { gardenNoteRawContents }] = await Promise.all([
+      import("remark"),
+      import("remark-html"),
+      import("@/data/generated"),
+    ]);
     const rawMd = gardenNoteRawContents[slug];
     if (!rawMd) return null;
     const processed = await remark().use(remarkHtml).process(rawMd);

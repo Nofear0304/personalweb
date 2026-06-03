@@ -1,5 +1,3 @@
-import { remark } from "remark";
-import remarkHtml from "remark-html";
 import {
   journeyNodes as generatedJourneyNodes,
   journeyNodeHtmlContents,
@@ -21,7 +19,12 @@ export async function getJourneyNodeBySlug(
   if (journeyNodeHtmlContents[slug]) {
     htmlContent = journeyNodeHtmlContents[slug];
   } else {
-    const { journeyNodeRawContents } = await import("@/data/generated");
+    // Dynamic import to avoid loading ESM packages on Cloudflare Workers
+    const [{ remark }, { default: remarkHtml }, { journeyNodeRawContents }] = await Promise.all([
+      import("remark"),
+      import("remark-html"),
+      import("@/data/generated"),
+    ]);
     const rawMd = journeyNodeRawContents[slug];
     if (!rawMd) return null;
     const processed = await remark().use(remarkHtml).process(rawMd);

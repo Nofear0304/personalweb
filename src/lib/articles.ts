@@ -1,5 +1,3 @@
-import { remark } from "remark";
-import remarkHtml from "remark-html";
 import {
   articles as generatedArticles,
   articleHtmlContents,
@@ -44,8 +42,12 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
     htmlContent = articleHtmlContents[slug];
   } else {
     // Fallback: convert raw markdown (for content added at runtime)
-    // This path is used for admin-uploaded content
-    const { articleRawContents } = await import("@/data/generated");
+    // Dynamic import to avoid loading ESM packages on Cloudflare Workers
+    const [{ remark }, { default: remarkHtml }, { articleRawContents }] = await Promise.all([
+      import("remark"),
+      import("remark-html"),
+      import("@/data/generated"),
+    ]);
     const rawMd = articleRawContents[slug];
     if (!rawMd) return null;
     const processed = await remark().use(remarkHtml).process(rawMd);
