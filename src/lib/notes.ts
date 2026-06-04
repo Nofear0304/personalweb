@@ -11,25 +11,29 @@ function estimateReadingTime(text: string): number {
   return Math.max(1, Math.ceil(chars / wordsPerMinute));
 }
 
-export function getAllNotes(): NoteMeta[] {
-  return generatedNotes.map((n) => {
-    const dynamicLikes = storeGetLikes("note", n.slug);
-    return {
-      ...n,
-      likes: (n.likes ?? 0) + dynamicLikes,
-    };
-  });
+export async function getAllNotes(): Promise<NoteMeta[]> {
+  const notes = await Promise.all(
+    generatedNotes.map(async (n) => {
+      const dynamicLikes = await storeGetLikes("note", n.slug);
+      return {
+        ...n,
+        likes: (n.likes ?? 0) + dynamicLikes,
+      };
+    })
+  );
+  return notes;
 }
 
-export function getAllNoteTags(): string[] {
-  const notes = getAllNotes();
+export async function getAllNoteTags(): Promise<string[]> {
+  const notes = await getAllNotes();
   const tags = new Set<string>();
   notes.forEach((n) => n.tags.forEach((t) => tags.add(t)));
   return Array.from(tags).sort();
 }
 
-export function getNotesByTag(tag: string): NoteMeta[] {
-  return getAllNotes().filter((n) => n.tags.includes(tag));
+export async function getNotesByTag(tag: string): Promise<NoteMeta[]> {
+  const notes = await getAllNotes();
+  return notes.filter((n) => n.tags.includes(tag));
 }
 
 export async function getNoteBySlug(slug: string): Promise<Note | null> {
@@ -53,7 +57,7 @@ export async function getNoteBySlug(slug: string): Promise<Note | null> {
     htmlContent = processed.toString();
   }
 
-  const dynamicLikes = storeGetLikes("note", slug);
+  const dynamicLikes = await storeGetLikes("note", slug);
 
   return {
     slug,
@@ -67,11 +71,11 @@ export async function getNoteBySlug(slug: string): Promise<Note | null> {
   };
 }
 
-export function getAdjacentNotes(slug: string): {
+export async function getAdjacentNotes(slug: string): Promise<{
   prev: NoteMeta | null;
   next: NoteMeta | null;
-} {
-  const notes = getAllNotes();
+}> {
+  const notes = await getAllNotes();
   const index = notes.findIndex((n) => n.slug === slug);
   return {
     prev: index > 0 ? notes[index - 1] : null,

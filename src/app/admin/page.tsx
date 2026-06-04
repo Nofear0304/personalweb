@@ -7,8 +7,8 @@ export const metadata: Metadata = {
   title: "管理面板",
 };
 
-export default function AdminDashboard() {
-  const articles = getAllArticles();
+export default async function AdminDashboard() {
+  const articles = await getAllArticles();
   const images = getAllImages();
 
   const stats = [

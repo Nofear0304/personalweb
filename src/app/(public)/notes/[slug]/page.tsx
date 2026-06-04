@@ -12,7 +12,7 @@ interface Props {
 }
 
 export async function generateStaticParams() {
-  const notes = getAllNotes();
+  const notes = await getAllNotes();
   return notes.map((note) => ({ slug: note.slug }));
 }
 
@@ -33,7 +33,7 @@ export default async function NoteDetailPage({ params }: Props) {
 
   if (!note) notFound();
 
-  const { prev, next } = getAdjacentNotes(slug);
+  const { prev, next } = await getAdjacentNotes(slug);
 
   return (
     <CosmicWrapper>

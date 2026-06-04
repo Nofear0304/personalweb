@@ -17,26 +17,26 @@ export function getDaysSinceLaunch(): number {
   return Math.floor((now.getTime() - launch.getTime()) / (1000 * 60 * 60 * 24));
 }
 
-export function getVisitCount(): number {
+export async function getVisitCount(): Promise<number> {
   return storeGetVisitCount();
 }
 
-export function incrementVisitCount(): number {
+export async function incrementVisitCount(): Promise<number> {
   return storeIncrementVisit();
 }
 
-export function getWeeklyVisits(): { day: string; count: number }[] {
+export async function getWeeklyVisits(): Promise<{ day: string; count: number }[]> {
   return storeGetWeeklyVisits();
 }
 
-export function getSiteStats(): SiteStats {
+export async function getSiteStats(): Promise<SiteStats> {
   return {
     articleCount: articles.length,
     noteCount: notes.length,
     imageCount: allImages.length,
     journeyCount: journeyNodes.length,
     gardenCount: gardenNotes.length,
-    totalVisits: getVisitCount(),
+    totalVisits: await getVisitCount(),
     daysSinceLaunch: getDaysSinceLaunch(),
   };
 }

@@ -11,11 +11,11 @@ import SocialLinks from "@/components/home/SocialLinks";
 import CosmicBackground from "@/components/layout/CosmicBackground";
 import PageTransition from "@/components/layout/PageTransition";
 
-export default function HomePage() {
-  const articles = getAllArticles();
+export default async function HomePage() {
+  const articles = await getAllArticles();
   const images = getAllImages();
   const journeyNodes = getAllJourneyNodes();
-  const notes = getAllNotes();
+  const notes = await getAllNotes();
 
   return (
     <>

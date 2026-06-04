@@ -3,7 +3,7 @@ import { getMessages, addMessage, deleteMessage, likeMessage } from "@/lib/messa
 import { isAuthenticated } from "@/lib/auth";
 
 export async function GET() {
-  const messages = getMessages();
+  const messages = await getMessages();
   return NextResponse.json({ messages });
 }
 
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "留言内容最多500个字符" }, { status: 400 });
     }
 
-    const message = addMessage({
+    const message = await addMessage({
       nickname: nickname.trim(),
       content: content.trim(),
     });
@@ -49,7 +49,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: "缺少消息ID" }, { status: 400 });
   }
 
-  const success = deleteMessage(id);
+  const success = await deleteMessage(id);
   if (!success) {
     return NextResponse.json({ error: "消息不存在" }, { status: 404 });
   }
@@ -67,7 +67,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "缺少消息ID" }, { status: 400 });
     }
 
-    const message = likeMessage(id);
+    const message = await likeMessage(id);
     if (!message) {
       return NextResponse.json({ error: "消息不存在" }, { status: 404 });
     }

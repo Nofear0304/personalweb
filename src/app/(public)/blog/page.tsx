@@ -9,8 +9,8 @@ export const metadata: Metadata = {
   description: "技术思考、生活感悟、读书笔记——这里是我写下的所有文字。",
 };
 
-export default function BlogPage() {
-  const articles = getAllArticles();
+export default async function BlogPage() {
+  const articles = await getAllArticles();
 
   return (
     <CosmicWrapper>

@@ -6,20 +6,20 @@ import {
 } from "@/lib/store";
 import type { GuestbookMessage } from "@/types";
 
-export function getMessages(): GuestbookMessage[] {
+export async function getMessages(): Promise<GuestbookMessage[]> {
   return storeGetMessages();
 }
 
-export function addMessage(
+export async function addMessage(
   msg: Omit<GuestbookMessage, "id" | "createdAt" | "likes">
-): GuestbookMessage {
+): Promise<GuestbookMessage> {
   return storeAddMessage(msg);
 }
 
-export function deleteMessage(id: string): boolean {
+export async function deleteMessage(id: string): Promise<boolean> {
   return storeDeleteMessage(id);
 }
 
-export function likeMessage(id: string): GuestbookMessage | null {
+export async function likeMessage(id: string): Promise<GuestbookMessage | null> {
   return storeLikeMessage(id);
 }

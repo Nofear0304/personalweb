@@ -9,8 +9,8 @@ export const metadata: Metadata = {
   description: "零碎的灵感、思考的片段，记录成长路上的每一个想法",
 };
 
-export default function NotesPage() {
-  const notes = getAllNotes();
+export default async function NotesPage() {
+  const notes = await getAllNotes();
 
   return (
     <CosmicWrapper>

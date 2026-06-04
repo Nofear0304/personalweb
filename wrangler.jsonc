@@ -11,6 +11,12 @@
 		"directory": ".open-next/assets",
 		"binding": "ASSETS"
 	},
+	"kv_namespaces": [
+		{
+			"binding": "PERSONALWEB_KV",
+			"id": "ce9e41207a964340aa48bd1c3cc68e0b"
+		}
+	],
 	"services": [
 		{
 			// Self-reference service binding, the service name must match the worker name

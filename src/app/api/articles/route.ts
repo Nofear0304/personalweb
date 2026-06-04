@@ -4,7 +4,7 @@ import { getAllArticles, createArticle, deleteArticle } from "@/lib/articles";
 
 // GET /api/articles — List all articles
 export async function GET() {
-  const articles = getAllArticles();
+  const articles = await getAllArticles();
   return NextResponse.json({ articles });
 }
 

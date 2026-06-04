@@ -6,20 +6,20 @@ import {
 } from "@/lib/store";
 import type { ContentComment } from "@/types";
 
-export function getComments(slug: string): ContentComment[] {
+export async function getComments(slug: string): Promise<ContentComment[]> {
   return storeGetComments(slug);
 }
 
-export function addComment(
+export async function addComment(
   data: Omit<ContentComment, "id" | "createdAt" | "likes">
-): ContentComment {
+): Promise<ContentComment> {
   return storeAddComment(data);
 }
 
-export function deleteComment(id: string): boolean {
+export async function deleteComment(id: string): Promise<boolean> {
   return storeDeleteComment(id);
 }
 
-export function likeComment(id: string): ContentComment | null {
+export async function likeComment(id: string): Promise<ContentComment | null> {
   return storeLikeComment(id);
 }

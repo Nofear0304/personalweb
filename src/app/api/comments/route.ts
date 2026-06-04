@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "缺少 slug 参数" }, { status: 400 });
   }
 
-  const comments = getComments(slug);
+  const comments = await getComments(slug);
   return NextResponse.json({ comments });
 }
 
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "评论内容最多500个字符" }, { status: 400 });
     }
 
-    const comment = addComment({
+    const comment = await addComment({
       slug,
       nickname: nickname.trim(),
       content: content.trim(),
@@ -60,7 +60,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: "缺少评论ID" }, { status: 400 });
   }
 
-  const success = deleteComment(id);
+  const success = await deleteComment(id);
   if (!success) {
     return NextResponse.json({ error: "评论不存在" }, { status: 404 });
   }
@@ -78,7 +78,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "缺少评论ID" }, { status: 400 });
     }
 
-    const comment = likeComment(id);
+    const comment = await likeComment(id);
     if (!comment) {
       return NextResponse.json({ error: "评论不存在" }, { status: 404 });
     }

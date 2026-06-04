@@ -11,25 +11,29 @@ export function estimateReadingTime(text: string): number {
   return Math.max(1, Math.ceil(chars / wordsPerMinute));
 }
 
-export function getAllArticles(): ArticleMeta[] {
-  return generatedArticles.map((a) => {
-    const dynamicLikes = storeGetLikes("article", a.slug);
-    return {
-      ...a,
-      likes: (a.likes ?? 0) + dynamicLikes,
-    };
-  });
+export async function getAllArticles(): Promise<ArticleMeta[]> {
+  const articles = await Promise.all(
+    generatedArticles.map(async (a) => {
+      const dynamicLikes = await storeGetLikes("article", a.slug);
+      return {
+        ...a,
+        likes: (a.likes ?? 0) + dynamicLikes,
+      };
+    })
+  );
+  return articles;
 }
 
-export function getAllTags(): string[] {
-  const articles = getAllArticles();
+export async function getAllTags(): Promise<string[]> {
+  const articles = await getAllArticles();
   const tags = new Set<string>();
   articles.forEach((a) => a.tags?.forEach((t) => tags.add(t)));
   return Array.from(tags).sort();
 }
 
-export function getArticlesByTag(tag: string): ArticleMeta[] {
-  return getAllArticles().filter((a) => a.tags?.includes(tag));
+export async function getArticlesByTag(tag: string): Promise<ArticleMeta[]> {
+  const articles = await getAllArticles();
+  return articles.filter((a) => a.tags?.includes(tag));
 }
 
 export async function getArticleBySlug(slug: string): Promise<Article | null> {
@@ -54,7 +58,7 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
     htmlContent = processed.toString();
   }
 
-  const dynamicLikes = storeGetLikes("article", slug);
+  const dynamicLikes = await storeGetLikes("article", slug);
   const articleMeta = generatedArticles.find((a) => a.slug === slug)!;
 
   return {
@@ -71,11 +75,11 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
   };
 }
 
-export function getAdjacentArticles(slug: string): {
+export async function getAdjacentArticles(slug: string): Promise<{
   prev: ArticleMeta | null;
   next: ArticleMeta | null;
-} {
-  const articles = getAllArticles();
+}> {
+  const articles = await getAllArticles();
   const index = articles.findIndex((a) => a.slug === slug);
   return {
     prev: index > 0 ? articles[index - 1] : null,

@@ -20,9 +20,9 @@ const skills = [
 
 const hobbies = ["📷 摄影", "📚 阅读", "🎵 音乐", "🏃 跑步", "✈️ 旅行"];
 
-export default function AboutPage() {
-  const stats = getSiteStats();
-  const weeklyVisits = getWeeklyVisits();
+export default async function AboutPage() {
+  const stats = await getSiteStats();
+  const weeklyVisits = await getWeeklyVisits();
 
   return (
     <CosmicWrapper>

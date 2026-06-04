@@ -12,7 +12,8 @@ interface Props {
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
-  return getAllTags().map((tag) => ({ tag }));
+  const tags = await getAllTags();
+  return tags.map((tag) => ({ tag }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -22,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function TagPage({ params }: Props) {
   const { tag } = await params;
-  const articles = getArticlesByTag(decodeURIComponent(tag));
+  const articles = await getArticlesByTag(decodeURIComponent(tag));
 
   return (
     <CosmicWrapper>

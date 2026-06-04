@@ -18,7 +18,8 @@ interface Props {
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
-  return getAllArticles().map((a) => ({ slug: a.slug }));
+  const articles = await getAllArticles();
+  return articles.map((a) => ({ slug: a.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -36,7 +37,7 @@ export default async function BlogDetailPage({ params }: Props) {
   const article = await getArticleBySlug(slug);
   if (!article) notFound();
 
-  const { prev, next } = getAdjacentArticles(slug);
+  const { prev, next } = await getAdjacentArticles(slug);
 
   return (
     <CosmicWrapper>

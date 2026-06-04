@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "类型无效" }, { status: 400 });
   }
 
-  const likes = getLikes(type, slug);
+  const likes = await getLikes(type, slug);
   return NextResponse.json({ likes });
 }
 
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "类型无效" }, { status: 400 });
     }
 
-    const likes = likeContent(type, slug);
+    const likes = await likeContent(type, slug);
     return NextResponse.json({ success: true, likes });
   } catch {
     return NextResponse.json({ error: "操作失败" }, { status: 500 });
