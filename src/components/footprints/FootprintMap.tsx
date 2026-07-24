@@ -34,6 +34,97 @@ export default function FootprintMap({ cities }: FootprintMapProps) {
     }, 5 * 60 * 1000); // 5 minutes
   }, []);
 
+  const visitedSet = new Set(cities);
+
+  const renderChart = useCallback(
+    (geoJson: unknown) => {
+      if (!chartRef.current) return;
+
+      if (!chartInstance.current) {
+        chartInstance.current = echarts.init(chartRef.current);
+      }
+
+      const chart = chartInstance.current;
+
+      // Convert GeoJSON features to ECharts data
+      const features = (geoJson as { features: Array<{ properties: { name: string } }> }).features;
+
+      const mapData = features.map((f) => {
+        const name = f.properties.name;
+        const visited = visitedSet.has(name);
+        return {
+          name,
+          itemStyle: {
+            areaColor: visited ? LIT_COLOR : UNLIT_COLOR,
+            borderColor: visited ? "#d4940a" : "#2a2f4a",
+            borderWidth: 0.5,
+          },
+          emphasis: {
+            itemStyle: {
+              areaColor: visited ? HOVER_COLOR : "#2a2f5a",
+            },
+          },
+        };
+      });
+
+      chart.setOption({
+        backgroundColor: "transparent",
+        tooltip: {
+          trigger: "item",
+          backgroundColor: "rgba(15, 19, 40, 0.95)",
+          borderColor: "rgba(255,255,255,0.1)",
+          textStyle: { color: "#fff", fontSize: 13 },
+          formatter: (params: { name: string }) => {
+            const visited = visitedSet.has(params.name);
+            if (visited) {
+              return `<strong>${params.name}</strong><br/>✅ 已踏足`;
+            }
+            return `<strong>${params.name}</strong><br/>🌫️ 尚未踏足`;
+          },
+        },
+        series: [
+          {
+            type: "map",
+            map: "china",
+            roam: true,
+            scaleLimit: { min: 1, max: 5 },
+            label: { show: false },
+            itemStyle: {
+              areaColor: UNLIT_COLOR,
+              borderColor: "#2a2f4a",
+              borderWidth: 0.5,
+            },
+            emphasis: {
+              label: { show: true, color: "#fff", fontSize: 10 },
+              itemStyle: { areaColor: HOVER_COLOR },
+            },
+            data: mapData,
+          },
+        ],
+      });
+
+      // Click handler
+      chart.off("click");
+      chart.on("click", (params: { name: string }) => {
+        const cityName = params.name;
+        const visited = visitedSet.has(cityName);
+        setSelectedCity(cityName);
+        setShowCityModal(true);
+
+        if (isAdmin) {
+          // Admin mode: show action options for every click
+        } else {
+          // Browse mode: only allow entry for visited cities
+          if (visited) {
+            // Auto-navigate (or show confirm — let's auto-navigate)
+            router.push(`/footprints/${encodeURIComponent(cityName)}`);
+          }
+        }
+      });
+    },
+    [cities, isAdmin, router],
+  );
+
   // Load GeoJSON and init chart
   useEffect(() => {
     let cancelled = false;
@@ -44,6 +135,7 @@ export default function FootprintMap({ cities }: FootprintMapProps) {
         const geoJson = await res.json();
         if (cancelled) return;
         geoJsonRef.current = geoJson;
+        echarts.registerMap("china", geoJson as Parameters<typeof echarts.registerMap>[1]);
         renderChart(geoJson);
       } catch (err) {
         console.error("Failed to load GeoJSON:", err);
@@ -51,112 +143,30 @@ export default function FootprintMap({ cities }: FootprintMapProps) {
     };
     initChart();
     return () => { cancelled = true; };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- initial load only, renderChart identity changes are irrelevant
+  }, []);
 
   // Re-render when cities or admin mode changes
   useEffect(() => {
     if (geoJsonRef.current) {
       renderChart(geoJsonRef.current);
     }
-  }, [cities, isAdmin]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [cities, isAdmin, renderChart]);
 
-  const visitedSet = new Set(cities);
-
-  const renderChart = (geoJson: unknown) => {
-    if (!chartRef.current) return;
-
-    if (!chartInstance.current) {
-      chartInstance.current = echarts.init(chartRef.current);
-    }
-
-    const chart = chartInstance.current;
-
-    // Convert GeoJSON features to ECharts data
-    const features = (geoJson as { features: Array<{ properties: { name: string } }> }).features;
-
-    echarts.registerMap("china", geoJson as Parameters<typeof echarts.registerMap>[1]);
-
-    const mapData = features.map((f) => {
-      const name = f.properties.name;
-      const visited = visitedSet.has(name);
-      return {
-        name,
-        itemStyle: {
-          areaColor: visited ? LIT_COLOR : UNLIT_COLOR,
-          borderColor: visited ? "#d4940a" : "#2a2f4a",
-          borderWidth: 0.5,
-        },
-        emphasis: {
-          itemStyle: {
-            areaColor: visited ? HOVER_COLOR : "#2a2f5a",
-          },
-        },
-      };
-    });
-
-    chart.setOption({
-      backgroundColor: "transparent",
-      tooltip: {
-        trigger: "item",
-        backgroundColor: "rgba(15, 19, 40, 0.95)",
-        borderColor: "rgba(255,255,255,0.1)",
-        textStyle: { color: "#fff", fontSize: 13 },
-        formatter: (params: { name: string }) => {
-          const visited = visitedSet.has(params.name);
-          if (visited) {
-            return `<strong>${params.name}</strong><br/>✅ 已踏足`;
-          }
-          return `<strong>${params.name}</strong><br/>🌫️ 尚未踏足`;
-        },
-      },
-      series: [
-        {
-          type: "map",
-          map: "china",
-          roam: true,
-          scaleLimit: { min: 1, max: 5 },
-          label: { show: false },
-          itemStyle: {
-            areaColor: UNLIT_COLOR,
-            borderColor: "#2a2f4a",
-            borderWidth: 0.5,
-          },
-          emphasis: {
-            label: { show: true, color: "#fff", fontSize: 10 },
-            itemStyle: { areaColor: HOVER_COLOR },
-          },
-          data: mapData,
-        },
-      ],
-    });
-
-    // Click handler
-    chart.off("click");
-    chart.on("click", (params: { name: string }) => {
-      const cityName = params.name;
-      const visited = visitedSet.has(cityName);
-      setSelectedCity(cityName);
-      setShowCityModal(true);
-
-      if (isAdmin) {
-        // Admin mode: show action options for every click
-      } else {
-        // Browse mode: only allow entry for visited cities
-        if (visited) {
-          // Auto-navigate (or show confirm — let's auto-navigate)
-          router.push(`/footprints/${encodeURIComponent(cityName)}`);
-        }
-      }
-    });
-
-    // Responsive resize
-    const handleResize = () => chart.resize();
+  // Responsive resize — single listener, cleaned up on unmount
+  useEffect(() => {
+    const handleResize = () => chartInstance.current?.resize();
     window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
+  // Dispose ECharts instance on unmount
+  useEffect(() => {
     return () => {
-      window.removeEventListener("resize", handleResize);
+      chartInstance.current?.dispose();
+      chartInstance.current = null;
     };
-  };
+  }, []);
 
   const handlePasswordSuccess = () => {
     setIsAdmin(true);
