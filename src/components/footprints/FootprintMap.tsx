@@ -58,13 +58,22 @@ export default function FootprintMap({ cities }: FootprintMapProps) {
           name,
           itemStyle: {
             areaColor: visited ? LIT_COLOR : UNLIT_COLOR,
-            borderColor: visited ? "#d4940a" : "#2a2f4a",
-            borderWidth: 0.5,
+            borderColor: visited ? "#f5c842" : "#5a6090",
+            borderWidth: 1,
+          },
+          label: {
+            show: visited,
+            color: "#ffd966",
+            fontSize: 9,
+            fontWeight: "bold",
           },
           emphasis: {
             itemStyle: {
-              areaColor: visited ? HOVER_COLOR : "#2a2f5a",
+              areaColor: visited ? HOVER_COLOR : "#3a3f6a",
+              borderColor: "#fff",
+              borderWidth: 1.5,
             },
+            label: { show: true, color: "#fff", fontSize: 11, fontWeight: "bold" },
           },
         };
       });
@@ -93,12 +102,12 @@ export default function FootprintMap({ cities }: FootprintMapProps) {
             label: { show: false },
             itemStyle: {
               areaColor: UNLIT_COLOR,
-              borderColor: "#2a2f4a",
-              borderWidth: 0.5,
+              borderColor: "#5a6090",
+              borderWidth: 1,
             },
             emphasis: {
-              label: { show: true, color: "#fff", fontSize: 10 },
-              itemStyle: { areaColor: HOVER_COLOR },
+              label: { show: true, color: "#fff", fontSize: 11, fontWeight: "bold" },
+              itemStyle: { areaColor: "#3a3f6a", borderColor: "#fff", borderWidth: 1.5 },
             },
             data: mapData,
           },
@@ -238,7 +247,7 @@ export default function FootprintMap({ cities }: FootprintMapProps) {
 
       {/* Chart container */}
       {geoError ? (
-        <div className="flex flex-col items-center justify-center" style={{ height: "calc(100vh - 180px)", minHeight: 500 }}>
+        <div className="flex flex-col items-center justify-center" style={{ height: "calc(100vh - 140px)", minHeight: 600 }}>
           <p className="text-white/50 mb-4">地图数据加载失败</p>
           <button
             onClick={() => { setGeoError(false); window.location.reload(); }}
@@ -248,7 +257,7 @@ export default function FootprintMap({ cities }: FootprintMapProps) {
           </button>
         </div>
       ) : (
-        <div ref={chartRef} className="w-full" style={{ height: "calc(100vh - 180px)", minHeight: 500 }} />
+        <div ref={chartRef} className="w-full" style={{ height: "calc(100vh - 140px)", minHeight: 600 }} />
       )}
 
       {/* Password modal */}
