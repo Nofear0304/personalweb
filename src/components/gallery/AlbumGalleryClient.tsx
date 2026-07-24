@@ -11,6 +11,7 @@ import Lightbox from "@/components/gallery/Lightbox";
 interface AlbumGalleryClientProps {
   album: Album;
   images: ImageInfo[];
+  backHref?: string;  // defaults to "/gallery"
 }
 
 const breakpointColumns = {
@@ -24,6 +25,7 @@ const breakpointColumns = {
 export default function AlbumGalleryClient({
   album,
   images,
+  backHref = "/gallery",
 }: AlbumGalleryClientProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
@@ -40,7 +42,7 @@ export default function AlbumGalleryClient({
       <FadeIn>
         <div className="mb-12">
           <Link
-            href="/gallery"
+            href={backHref}
             className="inline-flex items-center gap-2 text-sm text-[var(--muted)] hover:text-white transition-colors mb-6"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
