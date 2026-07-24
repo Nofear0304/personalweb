@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import Link from "next/link";
 import CosmicWrapper from "@/components/layout/CosmicWrapper";
 import FadeIn from "@/components/ui/FadeIn";
 import { getVisitedCities } from "@/lib/footprints";
+import { getTravelCities } from "@/lib/albums";
 import { footprintsCityData } from "@/data/generated";
 import CityGalleryClient from "./CityGalleryClient";
 
@@ -12,9 +12,8 @@ interface Props {
 }
 
 export async function generateStaticParams() {
-  return Object.keys(footprintsCityData).map((city) => ({
-    city, // Next.js handles encoding automatically
-  }));
+  const cities = getTravelCities();
+  return cities.map((c) => ({ city: c.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

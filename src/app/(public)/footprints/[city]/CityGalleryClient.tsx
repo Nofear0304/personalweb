@@ -1,18 +1,13 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Masonry from "react-masonry-css";
 import { motion, AnimatePresence } from "framer-motion";
-
-interface CityImage {
-  filename: string;
-  url: string;
-  category?: string;
-}
+import type { ImageInfo } from "@/types";
 
 interface CityGalleryClientProps {
-  images: CityImage[];
+  images: ImageInfo[];
   cityName: string;
 }
 
