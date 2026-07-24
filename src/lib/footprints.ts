@@ -16,21 +16,30 @@ function getFallback(): string[] {
   return g[FALLBACK_KEY] as string[];
 }
 
-async function getKV() {
-  // Mirrors the same pattern used in src/lib/store.ts
+interface SimpleKV {
+  get(key: string): Promise<string | null>;
+  put(key: string, value: string): Promise<void>;
+}
+
+/** Lazily resolve and verify the KV binding. Returns null if unavailable. */
+let _kv: SimpleKV | null | undefined;
+
+async function getKV(): Promise<SimpleKV | null> {
+  if (_kv !== undefined) return _kv as SimpleKV | null;
   try {
     const mod = await import("@opennextjs/cloudflare");
     const ctx = await mod.getCloudflareContext({ async: true });
-    const candidate = (ctx.env as Record<string, unknown>).PERSONALWEB_KV as {
-      get(key: string): Promise<string | null>;
-      put(key: string, value: string): Promise<void>;
-    } | undefined;
-    if (!candidate) return null;
+    const candidate = (ctx.env as Record<string, unknown>).PERSONALWEB_KV as SimpleKV | undefined;
+    if (!candidate) {
+      _kv = null;
+      return null;
+    }
     await candidate.get("__health_check__");
-    return candidate;
+    _kv = candidate;
   } catch {
-    return null;
+    _kv = null;
   }
+  return _kv as SimpleKV | null;
 }
 
 // ─── Public API ──────────────────────────────────────────────────────
