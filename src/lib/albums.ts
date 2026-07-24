@@ -1,5 +1,5 @@
-import { albums as generatedAlbums, allImages as generatedImages } from "@/data/generated";
-import type { Album, ImageInfo } from "@/types";
+import { albums as generatedAlbums, allImages as generatedImages, travelCities as generatedTravelCities } from "@/data/generated";
+import type { Album, ImageInfo, TravelCity } from "@/types";
 
 export function getAlbums(): Album[] {
   return generatedAlbums;
@@ -26,6 +26,26 @@ export function getAlbumImages(slug: string): ImageInfo[] {
       const expectedCategory = categoryMap[slug] || slug;
       return img.category === expectedCategory;
     })
+    .sort(
+      (a, b) =>
+        new Date(b.uploadedAt || 0).getTime() -
+        new Date(a.uploadedAt || 0).getTime()
+    );
+}
+
+export function getTravelCities(): TravelCity[] {
+  return generatedTravelCities;
+}
+
+export function getCityBySlug(slug: string): TravelCity | null {
+  return generatedTravelCities.find((c) => c.slug === slug) ?? null;
+}
+
+export function getCityImages(slug: string): ImageInfo[] {
+  return generatedImages
+    .filter(
+      (img) => img.category === "旅行" && img.location === slug
+    )
     .sort(
       (a, b) =>
         new Date(b.uploadedAt || 0).getTime() -
