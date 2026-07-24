@@ -62,10 +62,10 @@ export default function FootprintMap({ cities }: FootprintMapProps) {
             borderWidth: 1,
           },
           label: {
-            show: visited,
-            color: "#ffd966",
+            show: true,
+            color: visited ? "#ffd966" : "#ffffff",
             fontSize: 9,
-            fontWeight: "bold",
+            fontWeight: visited ? "bold" : "normal",
           },
           emphasis: {
             itemStyle: {
