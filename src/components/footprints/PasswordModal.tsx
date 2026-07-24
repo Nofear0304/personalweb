@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 interface PasswordModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (password: string) => void;
 }
 
 export default function PasswordModal({ isOpen, onClose, onSuccess }: PasswordModalProps) {
@@ -37,7 +37,7 @@ export default function PasswordModal({ isOpen, onClose, onSuccess }: PasswordMo
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        onSuccess();
+        onSuccess(value.trim());
         setValue("");
       } else {
         setError(data.error || "密码错误，请重试");

@@ -20,9 +20,11 @@ export default function FootprintMap({ cities }: FootprintMapProps) {
   const geoJsonRef = useRef<unknown>(null);
 
   const [isAdmin, setIsAdmin] = useState(false);
+  const [adminPassword, setAdminPassword] = useState("");
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [showCityModal, setShowCityModal] = useState(false);
+  const [geoError, setGeoError] = useState(false);
 
   // Track admin timeout
   const adminTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -139,6 +141,7 @@ export default function FootprintMap({ cities }: FootprintMapProps) {
         renderChart(geoJson);
       } catch (err) {
         console.error("Failed to load GeoJSON:", err);
+        if (!cancelled) setGeoError(true);
       }
     };
     initChart();
@@ -168,7 +171,8 @@ export default function FootprintMap({ cities }: FootprintMapProps) {
     };
   }, []);
 
-  const handlePasswordSuccess = () => {
+  const handlePasswordSuccess = (password: string) => {
+    setAdminPassword(password);
     setIsAdmin(true);
     setShowPasswordModal(false);
     resetAdminTimer();
@@ -196,7 +200,7 @@ export default function FootprintMap({ cities }: FootprintMapProps) {
           body: JSON.stringify({
             action,
             city: selectedCity,
-            password: "123456", // Already verified via PasswordModal
+            password: adminPassword,
           }),
         });
         const data = await res.json();
@@ -233,7 +237,19 @@ export default function FootprintMap({ cities }: FootprintMapProps) {
       </div>
 
       {/* Chart container */}
-      <div ref={chartRef} className="w-full" style={{ height: "calc(100vh - 180px)", minHeight: 500 }} />
+      {geoError ? (
+        <div className="flex flex-col items-center justify-center" style={{ height: "calc(100vh - 180px)", minHeight: 500 }}>
+          <p className="text-white/50 mb-4">地图数据加载失败</p>
+          <button
+            onClick={() => { setGeoError(false); window.location.reload(); }}
+            className="px-4 py-2 rounded-lg bg-white/10 text-white text-sm hover:bg-white/20 transition-colors"
+          >
+            重试
+          </button>
+        </div>
+      ) : (
+        <div ref={chartRef} className="w-full" style={{ height: "calc(100vh - 180px)", minHeight: 500 }} />
+      )}
 
       {/* Password modal */}
       <PasswordModal
