@@ -94,13 +94,7 @@ export default async function CityDetailPage({ params }: Props) {
   }
 
   // Happy path: visited + has photos
-  // Convert string paths to ImageInfo-like objects
-  const images = cityImages.map((url, i) => ({
-    filename: url.split("/").pop() || `photo-${i}`,
-    url,
-    category: cityName,
-  }));
-
+  // ImageInfo objects already have all fields CityGalleryClient needs
   return (
     <CosmicWrapper>
       <div className="max-w-[1400px] mx-auto px-5 py-8 sm:py-12">
@@ -117,7 +111,7 @@ export default async function CityDetailPage({ params }: Props) {
           </p>
         </FadeIn>
 
-        <CityGalleryClient images={images} cityName={cityName} />
+        <CityGalleryClient images={cityImages} cityName={cityName} />
       </div>
     </CosmicWrapper>
   );

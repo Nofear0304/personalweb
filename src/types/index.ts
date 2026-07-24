@@ -191,7 +191,10 @@ export interface Album {
   imageCount: number;
 }
 
-// --- Footprints ---
-export interface FootprintsCityMapping {
-  [city: string]: string[];
+// --- Travel Cities (generated from directory structure) ---
+export interface TravelCity {
+  slug: string;       // city name as-is (e.g. "杭州")
+  name: string;       // display name (same as slug for now)
+  coverImage: string; // URL to cover image
+  imageCount: number; // number of photos in this city
 }
