@@ -25,6 +25,9 @@
 			"service": "personalweb"
 		}
 	],
+	"vars": {
+		"FOOTPRINTS_ADMIN_PASSWORD": "123456"
+	},
 	"images": {
 		// Enable image optimization
 		// see https://opennext.js.org/cloudflare/howtos/image
