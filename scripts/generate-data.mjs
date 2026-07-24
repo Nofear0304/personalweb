@@ -282,6 +282,9 @@ async function main() {
   const messagesData = readJsonSafe(path.join(DATA_DIR, "messages.json"), []);
   const visitsData = readJsonSafe(path.join(DATA_DIR, "visits.json"), { count: 0, daily: {} });
 
+  // --- Footprints city-image mapping ---
+  const footprintsCityData = readJsonSafe(path.join(DATA_DIR, "footprints.json"), {});
+
   // --- Write output ---
   const outDir = path.dirname(OUTPUT_FILE);
   if (!fs.existsSync(outDir)) {
@@ -336,6 +339,9 @@ export const initialCommentsData: ContentComment[] = ${JSON.stringify(commentsDa
 export const initialMessagesData: GuestbookMessage[] = ${JSON.stringify(messagesData, null, 2)};
 
 export const initialVisitsData: { count: number; daily: Record<string, number> } = ${JSON.stringify(visitsData, null, 2)};
+
+// ─── Footprints ──────────────────────────────────────────────────────
+export const footprintsCityData: Record<string, string[]> = ${JSON.stringify(footprintsCityData, null, 2)};
 `;
 
   fs.writeFileSync(OUTPUT_FILE, serialized, "utf-8");
