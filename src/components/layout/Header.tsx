@@ -10,6 +10,7 @@ const navLinks = [
   { href: "/blog", label: "博客" },
   { href: "/notes", label: "随笔" },
   { href: "/gallery", label: "图集" },
+  { href: "/footprints", label: "足迹" },
   { href: "/guestbook", label: "留言" },
   { href: "/friends", label: "朋友" },
   { href: "/about", label: "关于" },
