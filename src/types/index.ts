@@ -190,3 +190,8 @@ export interface Album {
   description: string;
   imageCount: number;
 }
+
+// --- Footprints ---
+export interface FootprintsCityMapping {
+  [city: string]: string[];
+}
