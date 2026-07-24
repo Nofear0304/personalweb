@@ -12,6 +12,7 @@ interface AlbumGalleryClientProps {
   album: Album;
   images: ImageInfo[];
   backHref?: string;  // defaults to "/gallery"
+  backLabel?: string; // defaults to "返回图集"
 }
 
 const breakpointColumns = {
@@ -26,6 +27,7 @@ export default function AlbumGalleryClient({
   album,
   images,
   backHref = "/gallery",
+  backLabel = "返回图集",
 }: AlbumGalleryClientProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
@@ -48,7 +50,7 @@ export default function AlbumGalleryClient({
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            返回图集
+            {backLabel}
           </Link>
           <h1 className="font-serif text-4xl sm:text-5xl font-bold text-white mb-3">
             {album.title}

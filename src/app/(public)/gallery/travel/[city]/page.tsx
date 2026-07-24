@@ -65,7 +65,7 @@ export default async function TravelCityPage({ params }: Props) {
     return (
       <CosmicWrapper>
         <div className="max-w-[1400px] mx-auto px-5 py-16 sm:py-20">
-          <AlbumGalleryClient album={miscAlbum} images={looseImages} backHref="/gallery/travel" />
+          <AlbumGalleryClient album={miscAlbum} images={looseImages} backHref="/gallery/travel" backLabel="返回旅行" />
         </div>
       </CosmicWrapper>
     );
@@ -87,7 +87,7 @@ export default async function TravelCityPage({ params }: Props) {
   return (
     <CosmicWrapper>
       <div className="max-w-[1400px] mx-auto px-5 py-16 sm:py-20">
-        <AlbumGalleryClient album={album} images={images} backHref="/gallery/travel" />
+        <AlbumGalleryClient album={album} images={images} backHref="/gallery/travel" backLabel="返回旅行" />
       </div>
     </CosmicWrapper>
   );

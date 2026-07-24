@@ -142,10 +142,17 @@ function generateTravelCities() {
   const travelDir = path.join(GALLERY_DIR, "travel");
   if (!fs.existsSync(travelDir)) return [];
 
+  // Reserved directory names used for special routing
+  const RESERVED_NAMES = new Set(["_misc"]);
+
   const entries = fs.readdirSync(travelDir, { withFileTypes: true });
   const cities = [];
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
+    if (RESERVED_NAMES.has(entry.name)) {
+      console.warn(`Skipping reserved directory name: travel/${entry.name}`);
+      continue;
+    }
     const cityDir = path.join(travelDir, entry.name);
     const imageCount = countImagesInDir(cityDir);
     if (imageCount === 0) continue;
