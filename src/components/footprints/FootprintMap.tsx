@@ -63,8 +63,8 @@ export default function FootprintMap({ cities }: FootprintMapProps) {
           },
           label: {
             show: true,
-            color: visited ? "#ffd966" : "#ffffff",
-            fontSize: 9,
+            color: visited ? "#ffd966" : "#94a3b8",
+            fontSize: 6,
             fontWeight: visited ? "bold" : "normal",
           },
           emphasis: {
@@ -73,7 +73,7 @@ export default function FootprintMap({ cities }: FootprintMapProps) {
               borderColor: "#fff",
               borderWidth: 1.5,
             },
-            label: { show: true, color: "#fff", fontSize: 11, fontWeight: "bold" },
+            label: { show: true, color: "#fff", fontSize: 10, fontWeight: "bold" },
           },
         };
       });
@@ -106,7 +106,7 @@ export default function FootprintMap({ cities }: FootprintMapProps) {
               borderWidth: 1,
             },
             emphasis: {
-              label: { show: true, color: "#fff", fontSize: 11, fontWeight: "bold" },
+              label: { show: true, color: "#fff", fontSize: 10, fontWeight: "bold" },
               itemStyle: { areaColor: "#3a3f6a", borderColor: "#fff", borderWidth: 1.5 },
             },
             data: mapData,
@@ -247,7 +247,7 @@ export default function FootprintMap({ cities }: FootprintMapProps) {
 
       {/* Chart container */}
       {geoError ? (
-        <div className="flex flex-col items-center justify-center" style={{ height: "calc(100vh - 140px)", minHeight: 600 }}>
+        <div className="flex flex-col items-center justify-center flex-1" style={{ minHeight: 500 }}>
           <p className="text-white/50 mb-4">地图数据加载失败</p>
           <button
             onClick={() => { setGeoError(false); window.location.reload(); }}
@@ -257,7 +257,7 @@ export default function FootprintMap({ cities }: FootprintMapProps) {
           </button>
         </div>
       ) : (
-        <div ref={chartRef} className="w-full" style={{ height: "calc(100vh - 140px)", minHeight: 600 }} />
+        <div ref={chartRef} className="w-full flex-1" style={{ minHeight: 500 }} />
       )}
 
       {/* Password modal */}

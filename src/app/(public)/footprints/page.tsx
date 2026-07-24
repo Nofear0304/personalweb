@@ -14,12 +14,12 @@ export default async function FootprintsPage() {
 
   return (
     <CosmicWrapper>
-      <div className="max-w-[1400px] mx-auto px-5 py-8 sm:py-12">
+      <div className="max-w-[1600px] mx-auto px-4 py-4 sm:py-6 h-screen flex flex-col">
         <FadeIn>
-          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-white text-center mb-2">
+          <h1 className="text-xl sm:text-2xl font-serif font-bold text-white text-center mb-1">
             🗺️ 足迹
           </h1>
-          <p className="text-white/50 text-sm text-center mb-8">
+          <p className="text-white/50 text-xs text-center mb-3">
             已点亮 {cities.length} 座城市
           </p>
         </FadeIn>
